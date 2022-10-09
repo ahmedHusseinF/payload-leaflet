@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Label, useField } from 'payload/components/forms';
 
-let MapContainer, TileLayer, Marker, L, DefaultMarkerIcon;
+let MapContainer, TileLayer, Marker, useMapEvents, L, DefaultMarkerIcon;
 if (typeof window !== 'undefined') {
   require('leaflet/dist/leaflet.css');
   L = require('leaflet/dist/leaflet.js');
@@ -12,6 +12,7 @@ if (typeof window !== 'undefined') {
   MapContainer = require('react-leaflet').MapContainer;
   TileLayer = require('react-leaflet').TileLayer;
   Marker = require('react-leaflet').Marker;
+  useMapEvents = require('react-leaflet').useMapEvents;
 
   DefaultMarkerIcon = L.icon({
     iconUrl: icon,
@@ -20,6 +21,15 @@ if (typeof window !== 'undefined') {
 }
 
 type Props = { path: string; label: string; defaultValue: number[]; required: boolean };
+
+const HandleMapEvents = ({ setLocation }) => {
+  useMapEvents({
+    click: (ev) => {
+      setLocation([ev.latlng.lng, ev.latlng.lat]);
+    },
+  });
+  return null;
+};
 
 const LeafletPointField: React.FC<Props> = (props) => {
   let { path, label, defaultValue, required } = props;
@@ -59,6 +69,7 @@ const LeafletPointField: React.FC<Props> = (props) => {
           position={{ lat: value ? value[1] : defaultValue[1], lng: value ? value[0] : defaultValue[0] }}
           icon={DefaultMarkerIcon}
         ></Marker>
+        <HandleMapEvents setLocation={setValue} />
       </MapContainer>
     </>
   );
